@@ -1,0 +1,81 @@
+def gameOfLife(board):
+    rows = len(board)
+    cols = len(board[0])
+
+    directions = [
+        (-1, -1), (-1, 0), (-1, 1),
+        (0, -1),           (0, 1),
+        (1, -1),  (1, 0),  (1, 1)
+    ]
+
+    for i in range(rows):
+        for j in range(cols):
+
+            live_neighbors = 0
+
+            for di, dj in directions:
+                ni = i + di
+                nj = j + dj
+
+                if 0 <= ni < rows and 0 <= nj < cols:
+
+                    # 1 = live
+                    # 2 = originally live but will die
+                    if board[ni][nj] == 1 or board[ni][nj] == 2:
+                        live_neighbors += 1
+
+            # Live cell
+            if board[i][j] == 1:
+
+                if live_neighbors < 2 or live_neighbors > 3:
+                    board[i][j] = 2
+
+            # Dead cell
+            elif board[i][j] == 0:
+
+                if live_neighbors == 3:
+                    board[i][j] = 3
+
+    # Convert temporary states
+    for i in range(rows):
+        for j in range(cols):
+
+            if board[i][j] == 2:
+                board[i][j] = 0
+
+            elif board[i][j] == 3:
+                board[i][j] = 1
+
+    return board
+
+
+board1 = [
+    [0, 1, 0],
+    [0, 0, 1],
+    [1, 1, 1],
+    [0, 0, 0]
+]
+
+print(gameOfLife(board1))
+
+# Output:
+# [
+#   [0,0,0],
+#   [1,0,1],
+#   [0,1,1],
+#   [0,1,0]
+# ]
+
+
+board2 = [
+    [1, 1],
+    [1, 0]
+]
+
+print(gameOfLife(board2))
+
+# Output:
+# [
+#   [1,1],
+#   [1,1]
+# ]

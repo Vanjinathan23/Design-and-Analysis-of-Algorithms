@@ -1,0 +1,45 @@
+def findPaths(m, n, N, startRow, startColumn):
+    MOD = 10**9 + 7
+
+    dp = [[0] * n for _ in range(m)]
+    dp[startRow][startColumn] = 1
+
+    result = 0
+
+    directions = [
+        (-1, 0),
+        (1, 0),
+        (0, -1),
+        (0, 1)
+    ]
+
+    for _ in range(N):
+        new_dp = [[0] * n for _ in range(m)]
+
+        for i in range(m):
+            for j in range(n):
+
+                if dp[i][j] == 0:
+                    continue
+
+                for di, dj in directions:
+                    ni = i + di
+                    nj = j + dj
+
+                    if ni < 0 or ni >= m or nj < 0 or nj >= n:
+                        result = (result + dp[i][j]) % MOD
+                    else:
+                        new_dp[ni][nj] = (
+                            new_dp[ni][nj] + dp[i][j]
+                        ) % MOD
+
+        dp = new_dp
+
+    return result
+
+
+print(findPaths(2, 2, 2, 0, 0))
+# Output: 6
+
+print(findPaths(1, 3, 3, 0, 1))
+# Output: 12

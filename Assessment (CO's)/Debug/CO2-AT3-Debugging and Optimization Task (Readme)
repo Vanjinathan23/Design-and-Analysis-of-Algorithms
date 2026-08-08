@@ -1,0 +1,532 @@
+# Q38. Debugging Pair Sum Code — Premature Return Inside Outer Loop
+
+## Student Details
+
+| Field            | Details                       |
+| ---------------- | ----------------------------- |
+| **Register No.** | 192425231                     |
+| **Student Name** | VANJINATHAN S                 |
+| **Question**     | Q38 — Debugging Pair Sum Code |
+
+---
+
+## 1. Problem Statement
+
+The task is to analyse a brute-force implementation of the **Pair Sum** problem.
+
+The program must find two indices `i` and `j` in an array such that:
+
+```text
+arr[i] + arr[j] == target
+```
+
+The given implementation contains a logical placement error: the `return None` statement is placed **inside the outer `for` loop** instead of after it.
+
+This causes the function to terminate prematurely and report failure even when a valid pair exists later in the array.
+
+The objective is to:
+
+* Identify the premature `return` error.
+* Debug the code step-by-step.
+* Ensure all required combinations are checked.
+* Avoid redundant mirror comparisons.
+* Preserve the brute-force approach.
+* Analyse the time and space complexity.
+* Provide the corrected implementation.
+
+---
+
+## 2. Original Buggy Code
+
+```python
+def pair_sum(arr, target):
+    for i in range(len(arr)):
+        for j in range(i + 1, len(arr)):
+            if arr[i] + arr[j] == target:
+                return (i, j)
+
+        return None  # ERROR: misplaced inside outer loop
+```
+
+### The Error
+
+The statement:
+
+```python
+return None
+```
+
+is incorrectly indented.
+
+It belongs to the **outer loop**, so the function returns `None` immediately after the first outer-loop iteration fails to find a pair.
+
+---
+
+## 3. Why the Bug Occurs — Step-by-Step Analysis
+
+Consider:
+
+```python
+pair_sum([2, 7, 11, 15], 26)
+```
+
+The correct answer is:
+
+```text
+(2, 3)
+```
+
+because:
+
+```text
+arr[2] + arr[3]
+= 11 + 15
+= 26
+```
+
+### Execution of the Buggy Code
+
+When:
+
+```text
+i = 0
+```
+
+the inner loop checks:
+
+|  i |  j | arr[i] | arr[j] | Sum | Match? |
+| -: | -: | -----: | -----: | --: | :----: |
+|  0 |  1 |      2 |      7 |   9 |    ❌   |
+|  0 |  2 |      2 |     11 |  13 |    ❌   |
+|  0 |  3 |      2 |     15 |  17 |    ❌   |
+
+None of these sums equals `26`.
+
+The inner loop therefore finishes normally.
+
+However, the next statement is:
+
+```python
+return None
+```
+
+Since this statement is inside the outer loop, the function terminates immediately.
+
+Therefore, the program never reaches:
+
+```text
+i = 1
+i = 2
+```
+
+where the valid pair `(2, 3)` would be found.
+
+### In Short
+
+```text
+i = 0
+   ↓
+Check all j values
+   ↓
+No match
+   ↓
+return None  ← ❌ TOO EARLY
+   ↓
+Function terminates
+```
+
+The correct flow should be:
+
+```text
+i = 0
+   ↓
+Check all j values
+   ↓
+No match
+   ↓
+i = 1
+   ↓
+Check all j values
+   ↓
+No match
+   ↓
+i = 2
+   ↓
+j = 3
+   ↓
+11 + 15 = 26
+   ↓
+return (2, 3)
+```
+
+---
+
+## 3.1 Execution Trace
+
+### Input
+
+```python
+arr = [2, 7, 11, 15]
+target = 26
+```
+
+### Correct Execution Trace
+
+|  i |  j | arr[i] | arr[j] | Sum | Match? | Loop Action      |
+| -: | -: | -----: | -----: | --: | :----: | ---------------- |
+|  0 |  1 |      2 |      7 |   9 |    ❌   | Continue         |
+|  0 |  2 |      2 |     11 |  13 |    ❌   | Continue         |
+|  0 |  3 |      2 |     15 |  17 |    ❌   | Move to next `i` |
+|  1 |  2 |      7 |     11 |  18 |    ❌   | Continue         |
+|  1 |  3 |      7 |     15 |  22 |    ❌   | Move to next `i` |
+|  2 |  3 |     11 |     15 |  26 |    ✅   | Return `(2, 3)`  |
+
+The valid pair is finally found at:
+
+```text
+i = 2
+j = 3
+```
+
+Therefore:
+
+```text
+11 + 15 = 26
+```
+
+and the function returns:
+
+```python
+(2, 3)
+```
+
+> **Important:** In the buggy implementation, the search stops after the first three rows because `return None` is executed immediately after `i = 0`. Therefore, rows 4–6 are never reached.
+
+---
+
+## 4. The Fix — Correcting Indentation / Scope
+
+The solution is purely structural.
+
+The `return None` statement must be moved **outside the outer loop**.
+
+### Correct Structure
+
+```python
+def pair_sum(arr, target):
+    for i in range(len(arr)):
+        for j in range(i + 1, len(arr)):
+            if arr[i] + arr[j] == target:
+                return (i, j)
+
+    return None
+```
+
+### Why This Works
+
+The following statement:
+
+```python
+return (i, j)
+```
+
+remains inside the inner loop because a valid pair can immediately terminate the search.
+
+The following statement:
+
+```python
+return None
+```
+
+is placed outside both loops.
+
+Therefore, it executes only after **every possible pair has been checked**.
+
+---
+
+## 5. Avoiding Redundant Mirror Comparisons
+
+A brute-force implementation could use:
+
+```python
+for i in range(len(arr)):
+    for j in range(len(arr)):
+```
+
+However, this produces unnecessary comparisons.
+
+For example:
+
+```text
+(0, 2)
+(2, 0)
+```
+
+represent the same unordered pair.
+
+It can also compare an element with itself:
+
+```text
+(0, 0)
+(1, 1)
+(2, 2)
+```
+
+These comparisons are unnecessary.
+
+### Optimized Inner Loop
+
+Instead, use:
+
+```python
+for j in range(i + 1, len(arr)):
+```
+
+This guarantees:
+
+```text
+j > i
+```
+
+Therefore:
+
+* Self-pairs such as `(i, i)` are avoided.
+* Mirror pairs such as `(i, j)` and `(j, i)` are not repeated.
+* Every unique pair is checked exactly once.
+* The algorithm remains a brute-force solution.
+
+### Example
+
+For:
+
+```text
+[2, 7, 11, 15]
+```
+
+the pairs checked are:
+
+```text
+(0,1)
+(0,2)
+(0,3)
+(1,2)
+(1,3)
+(2,3)
+```
+
+Instead of checking:
+
+```text
+(0,0)
+(0,1)
+(0,2)
+...
+(1,0)
+(1,1)
+...
+(2,0)
+...
+```
+
+---
+
+## 6. Corrected Final Code
+
+```python
+def pair_sum(arr, target):
+    """
+    Brute-force Pair Sum search.
+
+    Returns:
+        (i, j) if arr[i] + arr[j] == target
+        None if no valid pair exists.
+
+    Time Complexity : O(n^2)
+    Space Complexity: O(1)
+    """
+
+    n = len(arr)
+
+    # Select the first element of the pair
+    for i in range(n):
+
+        # Start from i + 1 to:
+        # 1. Avoid comparing an element with itself
+        # 2. Avoid redundant mirror comparisons
+        for j in range(i + 1, n):
+
+            # Check whether the current pair equals target
+            if arr[i] + arr[j] == target:
+
+                # Valid pair found
+                return (i, j)
+
+    # Executed only after all possible pairs are checked
+    return None
+```
+
+---
+
+## 7. Sample Runs
+
+### Test Case 1
+
+```python
+print(pair_sum([2, 7, 11, 15], 9))
+```
+
+Output:
+
+```text
+(0, 1)
+```
+
+Because:
+
+```text
+2 + 7 = 9
+```
+
+---
+
+### Test Case 2
+
+```python
+print(pair_sum([2, 7, 11, 15], 26))
+```
+
+Output:
+
+```text
+(2, 3)
+```
+
+Because:
+
+```text
+11 + 15 = 26
+```
+
+---
+
+### Test Case 3
+
+```python
+print(pair_sum([2, 7, 11, 15], 100))
+```
+
+Output:
+
+```text
+None
+```
+
+Because no pair produces a sum of `100`.
+
+---
+
+## 8. Time and Space Complexity Analysis
+
+### Time Complexity
+
+For an array containing `n` elements, the number of unique pairs is:
+
+[
+\frac{n(n-1)}{2}
+]
+
+Therefore:
+
+[
+T(n) = O(n^2)
+]
+
+The `j = i + 1` optimization removes redundant comparisons but does not change the asymptotic complexity.
+
+### Space Complexity
+
+The algorithm uses only a fixed number of variables:
+
+```text
+i
+j
+n
+```
+
+No additional array, hash map, or recursion is used.
+
+Therefore:
+
+[
+S(n) = O(1)
+]
+
+### Complexity Summary
+
+| Case         | Complexity |
+| ------------ | ---------- |
+| Best Case    | O(1)       |
+| Average Case | O(n²)      |
+| Worst Case   | O(n²)      |
+| Space        | O(1)       |
+
+### Best Case
+
+The first pair checked satisfies the target:
+
+```text
+arr[0] + arr[1] == target
+```
+
+Therefore, the algorithm returns immediately.
+
+### Worst Case
+
+No valid pair exists.
+
+The algorithm must check all:
+
+[
+\frac{n(n-1)}{2}
+]
+
+possible combinations.
+
+Hence:
+
+```text
+O(n²)
+```
+
+---
+
+## 9. Conclusion
+
+The original Pair Sum implementation failed because the statement:
+
+```python
+return None
+```
+
+was placed inside the outer `for` loop.
+
+As a result, the function stopped after checking only the first outer-loop iteration and incorrectly reported failure when a valid pair existed later in the array.
+
+The corrected implementation moves `return None` outside both loops, ensuring that all possible pairs are examined before concluding that no solution exists.
+
+Additionally, using:
+
+```python
+range(i + 1, n)
+```
+
+prevents self-comparisons and eliminates redundant mirror comparisons such as `(i, j)` and `(j, i)`.
+
+The final algorithm remains a pure brute-force solution with:
+
+```text
+Time Complexity  : O(n²)
+Space Complexity : O(1)
+```
+
+This provides a correct, efficient, and logically structured brute-force solution to the Pair Sum problem.

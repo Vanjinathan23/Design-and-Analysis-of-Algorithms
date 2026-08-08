@@ -1,0 +1,27 @@
+def largeGroupPositions(s):
+    result = []
+    n = len(s)
+
+    i = 0
+
+    while i < n:
+        start = i
+
+        while i + 1 < n and s[i] == s[i + 1]:
+            i += 1
+
+        end = i
+
+        if end - start + 1 >= 3:
+            result.append([start, end])
+
+        i += 1
+
+    return result
+
+
+print(largeGroupPositions("abbxxxxzzy"))
+# Output: [[3, 6]]
+
+print(largeGroupPositions("abc"))
+# Output: []

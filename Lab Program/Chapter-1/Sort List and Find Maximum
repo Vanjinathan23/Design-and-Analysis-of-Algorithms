@@ -1,0 +1,48 @@
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    mid = len(arr) // 2
+
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+
+    result = []
+    i = 0
+    j = 0
+
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+
+    return result
+
+
+def sort_and_find_max(arr):
+    if not arr:
+        return None
+
+    sorted_arr = merge_sort(arr)
+
+    return sorted_arr[-1]
+
+
+# Test cases
+print(sort_and_find_max([]))
+# Output: None
+
+print(sort_and_find_max([5]))
+# Output: 5
+
+print(sort_and_find_max([3, 3, 3, 3, 3]))
+# Output: 3
+
+print(sort_and_find_max([8, 2, 9, 1, 5]))
+# Output: 9

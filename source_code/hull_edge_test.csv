@@ -1,0 +1,13 @@
+Edge (i->j),Points left of line,Points right of line,Verdict
+"P1(2, 3) -> P5(7, 2)",0,8,HULL EDGE
+"P1(2, 3) -> P10(1, 7)",8,0,HULL EDGE
+"P5(7, 2) -> P1(2, 3)",8,0,HULL EDGE
+"P5(7, 2) -> P7(15, 6)",0,8,HULL EDGE
+"P6(3, 11) -> P8(10, 14)",8,0,HULL EDGE
+"P6(3, 11) -> P10(1, 7)",0,8,HULL EDGE
+"P7(15, 6) -> P5(7, 2)",8,0,HULL EDGE
+"P7(15, 6) -> P8(10, 14)",0,8,HULL EDGE
+"P8(10, 14) -> P6(3, 11)",0,8,HULL EDGE
+"P8(10, 14) -> P7(15, 6)",8,0,HULL EDGE
+"P10(1, 7) -> P1(2, 3)",0,8,HULL EDGE
+"P10(1, 7) -> P6(3, 11)",8,0,HULL EDGE
